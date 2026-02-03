@@ -12,6 +12,8 @@ Mobile test automation framework built with Python, Appium, and pytest.
 | **WireMock** (Docker) | API mock server |
 | **Allure** | Test reporting |
 
+> 📖 **For the full setup guide** (Android SDK, emulator, iOS, Appium, WireMock, sample app build): see **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)**
+
 ## Prerequisites
 
 - Python 3.11+
