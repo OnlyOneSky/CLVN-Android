@@ -53,29 +53,45 @@ RemiTA/
 
 ## Quick Start
 
-### 1. Clone & install dependencies
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/OnlyOneSky/RemiTA.git
 cd RemiTA
-python -m venv .venv
-source .venv/bin/activate
+```
+
+### 2. Create virtual environment & install dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate         # Windows
 pip install -e .
 ```
 
-### 2. Start WireMock
+> **PyCharm users:** Go to **Settings → Project → Python Interpreter → Add Interpreter → Existing** and select `.venv/bin/python` so the IDE resolves all imports correctly.
+
+### 3. Install Appium & drivers
+
+```bash
+npm install -g appium
+appium driver install uiautomator2   # Android
+appium driver install xcuitest       # iOS
+```
+
+### 4. Start WireMock
 
 ```bash
 docker compose up -d
 ```
 
-### 3. Start Appium server
+### 5. Start Appium server
 
 ```bash
 appium
 ```
 
-### 4. Run tests
+### 6. Run tests
 
 ```bash
 # Android (default)
@@ -86,11 +102,17 @@ pytest --platform ios
 
 # Smoke tests only
 pytest -m smoke
+```
 
-# With Allure report
-pytest --alluredir=allure-results
+### 7. View Allure report
+
+Allure results are generated automatically. To view:
+
+```bash
 allure serve allure-results
 ```
+
+> **Install Allure CLI** (if not already): `brew install allure` (macOS) or see [Allure docs](https://docs.qameta.io/allure/).
 
 ## Configuration
 
