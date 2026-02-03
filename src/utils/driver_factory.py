@@ -101,6 +101,10 @@ class DriverFactory:
         capabilities: dict[str, Any] = config.get("capabilities", {})
         implicit_wait: int = config.get("timeouts", {}).get("implicit_wait", 10)
 
+        # Remove appium:app — installation is handled by AppInstaller
+        # Keeping it would cause Appium to reinstall the APK on every session
+        capabilities.pop("appium:app", None)
+
         logger.info("Creating %s driver → %s", platform, server_url)
         logger.debug("Capabilities: %s", capabilities)
 

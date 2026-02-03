@@ -15,6 +15,7 @@ from _pytest.nodes import Item
 from _pytest.python import Metafunc
 
 from src.models.device_info import DeviceInfo
+from src.utils.app_installer import AppInstaller
 from src.utils.config_loader import ConfigLoader
 from src.utils.device_manager import DeviceManager
 from src.utils.driver_factory import DriverFactory
@@ -111,9 +112,26 @@ def platform(request: pytest.FixtureRequest) -> str:
 def driver(device_info: DeviceInfo) -> Generator:
     """Create an Appium driver for a specific device, quit it afterwards.
 
+    Before creating the driver, checks if the app is installed on the device.
+    If not, installs it automatically from the configured APK/IPA path.
+
     This fixture is parametrized indirectly via ``device_info``.
     Each device gets its own driver instance.
     """
+    # ── Ensure app is installed before creating driver ──
+    config = ConfigLoader.load_merged_config(device_info.platform)
+    caps = config.get("capabilities", {})
+    app_package = caps.get("appium:appPackage") or caps.get("appium:bundleId", "")
+    app_path = caps.get("appium:app")
+
+    if app_package:
+        installed = AppInstaller.ensure_installed(device_info, app_package, app_path)
+        if not installed:
+            pytest.fail(
+                f"App '{app_package}' could not be installed on {device_info.display_name}. "
+                f"Check that the APK/IPA exists at: {app_path}"
+            )
+
     _driver = DriverFactory.get_driver_for_device(device_info)
     logger.info(
         "Driver ready for %s (session=%s)",
