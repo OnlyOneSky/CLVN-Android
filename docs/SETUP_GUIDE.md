@@ -213,25 +213,114 @@ appium
 
 ## WireMock Setup
 
-### 1. Start WireMock (Docker)
+WireMock is our API mock server. We package it as a custom Docker image with all stubs baked in — no volume mounts needed.
+
+### Prerequisites
+
+You need Docker installed. Options:
+
+```bash
+# Option A: Docker Desktop (GUI)
+brew install --cask docker
+
+# Option B: Colima + Docker CLI (lightweight, no GUI)
+brew install colima docker
+colima start
+```
+
+### Option 1: Pull the pre-built image (recommended)
+
+Download `remita-wiremock.tar` from the [GitHub Release](https://github.com/OnlyOneSky/RemiTA/releases):
+
+```bash
+# Load the image
+docker load -i remita-wiremock.tar
+
+# Run it
+docker run -d --name remita-wiremock -p 8080:8080 remita-wiremock:latest
+```
+
+### Option 2: Build from source
 
 ```bash
 cd RemiTA
 docker compose up -d
 ```
 
-### 2. Verify it's running
+This builds the image from `wiremock/Dockerfile` and starts it.
+
+### Verify it's running
 
 ```bash
+# Check the container
+docker ps | grep wiremock
+
+# Check the stubs are loaded
 curl http://localhost:8080/__admin/mappings
 ```
 
-### 3. Managing stubs
+You should see the login stubs (success + failure) in the response.
 
-- Stub definitions: `wiremock/mappings/*.json`
-- Response bodies: `wiremock/__files/*.json`
-- WireMock auto-loads files from these directories on startup
-- Tests also manage stubs programmatically via `WireMockClient`
+### Stop / Restart
+
+```bash
+# Stop
+docker stop remita-wiremock
+
+# Start again
+docker start remita-wiremock
+
+# Or with docker-compose
+docker compose down
+docker compose up -d
+```
+
+### Managing stubs
+
+**Pre-loaded stubs (baked into image):**
+- `wiremock/mappings/` — Stub definitions (request matching → response)
+- `wiremock/__files/` — Response body JSON files
+
+**Adding new stubs:**
+1. Add mapping JSON to `wiremock/mappings/`
+2. Add response body to `wiremock/__files/` (if using `bodyFileName`)
+3. Rebuild the image: `docker compose build`
+
+**Programmatic stubs (in tests):**
+Tests can also create/delete stubs at runtime via `WireMockClient`:
+
+```python
+# In a test
+wiremock.create_stub({
+    "request": {"method": "GET", "url": "/api/users"},
+    "response": {"status": 200, "jsonBody": {"users": []}}
+})
+```
+
+**Useful admin endpoints:**
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /__admin/mappings` | List all stubs |
+| `POST /__admin/mappings` | Create a stub |
+| `DELETE /__admin/mappings` | Delete all stubs |
+| `POST /__admin/reset` | Reset stubs + request journal |
+| `GET /__admin/requests` | View recorded requests |
+| `POST /__admin/requests/count` | Count matching requests |
+
+### Rebuilding the image after changes
+
+When you update stubs and want to share the new image:
+
+```bash
+# Rebuild
+docker compose build
+
+# Export
+docker save remita-wiremock:latest -o remita-wiremock.tar
+
+# Share the .tar or create a new GitHub Release
+```
 
 ---
 
