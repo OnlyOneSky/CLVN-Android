@@ -339,17 +339,24 @@ npm install
 # Generate native Android project
 npx expo prebuild --platform android --no-install
 
-# Build debug APK
-cd android && ./gradlew assembleDebug
+# Build release APK (bundles JS — works without Metro dev server)
+cd android && ./gradlew assembleRelease
 
 # APK location:
-# android/app/build/outputs/apk/debug/app-debug.apk
+# android/app/build/outputs/apk/release/app-release.apk
 ```
+
+> ⚠️ **Why release and not debug?** The debug APK requires a Metro dev server
+> running to serve the JavaScript bundle. The release APK bundles everything
+> so the app runs standalone — which is what we need for automated testing.
 
 ### Install on emulator/device
 
+The test framework **auto-installs the APK** if it's not already on the device.
+You can also install manually:
+
 ```bash
-adb install sample-app/android/app/build/outputs/apk/debug/app-debug.apk
+adb install sample-app/android/app/build/outputs/apk/release/app-release.apk
 ```
 
 ### App Screens
