@@ -1,115 +1,116 @@
-"""WireMock REST client — manage stubs programmatically during tests."""
+"""WireMockClient — programmatic control of a WireMock instance."""
 
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import requests
 
+logger = logging.getLogger(__name__)
+
 
 class WireMockClient:
-    """Thin wrapper around the WireMock Admin API."""
+    """Thin REST client for WireMock's ``__admin`` API.
 
-    def __init__(self, base_url: str = "http://127.0.0.1:8080") -> None:
+    Usage::
+
+        wm = WireMockClient("http://localhost:8080")
+        wm.create_stub({
+            "request": {"method": "GET", "url": "/api/health"},
+            "response": {"status": 200, "jsonBody": {"ok": True}},
+        })
+    """
+
+    def __init__(self, base_url: str) -> None:
         self.base_url = base_url.rstrip("/")
-        self.admin_url = f"{self.base_url}/__admin"
+        self._admin = f"{self.base_url}/__admin"
 
-    # ── Health ────────────────────────────────────────────────────
+    # ── Health ────────────────────────────────────────────────────────────
 
-    def is_healthy(self) -> bool:
-        """Check if WireMock is up and responding."""
+    def is_healthy(self, timeout: float = 5.0) -> bool:
+        """Return ``True`` if WireMock is reachable."""
         try:
-            resp = requests.get(f"{self.admin_url}/mappings", timeout=5)
+            resp = requests.get(f"{self._admin}/mappings", timeout=timeout)
             return resp.status_code == 200
         except requests.ConnectionError:
             return False
 
-    # ── Stub management ───────────────────────────────────────────
+    # ── Stub management ───────────────────────────────────────────────────
 
     def create_stub(self, mapping: dict[str, Any]) -> dict[str, Any]:
-        """Create a new stub mapping.
-
-        Args:
-            mapping: WireMock mapping dict with 'request' and 'response' keys.
-
-        Returns:
-            Created mapping response from WireMock.
-        """
+        """Create a new stub mapping and return the WireMock response."""
         resp = requests.post(
-            f"{self.admin_url}/mappings",
+            f"{self._admin}/mappings",
             json=mapping,
-            headers={"Content-Type": "application/json"},
+            timeout=10,
         )
         resp.raise_for_status()
+        logger.debug("Stub created: %s", resp.json())
         return resp.json()
 
     def load_mapping_from_file(self, file_path: str | Path) -> dict[str, Any]:
-        """Load a mapping JSON file and create the stub.
-
-        Args:
-            file_path: Path to the mapping JSON file.
-
-        Returns:
-            Created mapping response from WireMock.
-        """
-        with open(file_path, "r") as f:
-            mapping = json.load(f)
+        """Read a JSON mapping file and register it as a stub."""
+        path = Path(file_path)
+        with open(path, "r", encoding="utf-8") as fh:
+            mapping: dict[str, Any] = json.load(fh)
         return self.create_stub(mapping)
 
     def delete_all_stubs(self) -> None:
-        """Remove all stub mappings."""
-        resp = requests.delete(f"{self.admin_url}/mappings")
+        """Remove every stub mapping."""
+        resp = requests.delete(f"{self._admin}/mappings", timeout=10)
         resp.raise_for_status()
+        logger.info("All stubs deleted.")
 
     def reset(self) -> None:
-        """Reset WireMock — clears stubs, request journal, and scenarios."""
-        resp = requests.post(f"{self.admin_url}/reset")
+        """Reset all stubs **and** the request journal."""
+        resp = requests.post(f"{self._admin}/reset", timeout=10)
         resp.raise_for_status()
+        logger.info("WireMock reset.")
 
-    # ── Verification ──────────────────────────────────────────────
+    # ── Request verification ──────────────────────────────────────────────
 
     def verify_request(
-        self, url: str, method: str = "POST", expected_count: int | None = None
+        self,
+        url: str,
+        method: str = "GET",
+        expected_count: int | None = None,
     ) -> dict[str, Any]:
-        """Verify that a specific request was received.
+        """Query the request journal and optionally assert the call count.
 
-        Args:
-            url: The request URL path to verify.
-            method: HTTP method (default POST).
-            expected_count: If set, assert exactly this many matching requests.
+        Parameters
+        ----------
+        url:
+            The URL path to verify (e.g., ``"/api/login"``).
+        method:
+            HTTP method (``GET``, ``POST``, etc.).
+        expected_count:
+            If provided, an ``AssertionError`` is raised when the actual
+            count does not match.
 
-        Returns:
-            Verification response with request details.
+        Returns
+        -------
+        dict
+            The raw verification response from WireMock.
         """
-        payload: dict[str, Any] = {
-            "method": method,
+        payload = {
+            "method": method.upper(),
             "url": url,
         }
+        resp = requests.post(
+            f"{self._admin}/requests/count",
+            json=payload,
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data: dict[str, Any] = resp.json()
 
         if expected_count is not None:
-            resp = requests.post(
-                f"{self.admin_url}/requests/count",
-                json=payload,
-            )
-            resp.raise_for_status()
-            data = resp.json()
             actual = data.get("count", 0)
             assert actual == expected_count, (
                 f"Expected {expected_count} request(s) to {method} {url}, got {actual}"
             )
-            return data
 
-        resp = requests.post(
-            f"{self.admin_url}/requests/find",
-            json=payload,
-        )
-        resp.raise_for_status()
-        return resp.json()
-
-    def get_request_journal(self) -> list[dict[str, Any]]:
-        """Return all recorded requests."""
-        resp = requests.get(f"{self.admin_url}/requests")
-        resp.raise_for_status()
-        return resp.json().get("requests", [])
+        return data

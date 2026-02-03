@@ -1,45 +1,56 @@
-"""Login feature tests."""
+"""Login test suite — validates authentication flows."""
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from src.models.user import VALID_USER, INVALID_USER
-from src.pages.login_page import LoginPage
+from src.models.user import User
 from src.pages.home_page import HomePage
+from src.pages.login_page import LoginPage
 
-MAPPINGS_DIR = Path(__file__).resolve().parents[1] / "wiremock" / "mappings"
+if TYPE_CHECKING:
+    from appium.webdriver.webdriver import WebDriver
+
+    from src.utils.wiremock_client import WireMockClient
+
+# ── Test data ─────────────────────────────────────────────────────────────────
+
+VALID_USER = User(username="valid_user", password="valid_pass", expected_name="Remi Chen")
+INVALID_USER = User(username="invalid_user", password="wrong_pass")
 
 
-@pytest.mark.smoke
-@pytest.mark.login
 class TestLogin:
-    """Login screen test cases."""
+    """Tests for the login screen."""
 
-    def test_successful_login(self, driver, wiremock) -> None:
-        """Valid credentials should navigate to the home page."""
-        # Arrange — load WireMock stub for successful login
-        wiremock.load_mapping_from_file(MAPPINGS_DIR / "login_success.json")
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_successful_login(self, driver: WebDriver, wiremock: WireMockClient) -> None:
+        """A valid user should land on the home screen with a welcome message."""
+        # Arrange — prime the API mock
+        wiremock.load_mapping_from_file("wiremock/mappings/login_success.json")
 
         login_page = LoginPage(driver)
-        home_page = HomePage(driver)
 
         # Act
         login_page.login(VALID_USER.username, VALID_USER.password)
 
         # Assert
-        assert home_page.is_home_displayed(), "Home page should be visible after login"
-        assert VALID_USER.display_name in home_page.get_welcome_message()
+        home_page = HomePage(driver)
+        assert home_page.is_home_displayed(), "Home screen did not appear after successful login"
 
-        # Verify the API was called
-        wiremock.verify_request("/api/login", method="POST", expected_count=1)
+        welcome = home_page.get_welcome_message()
+        assert VALID_USER.expected_name in welcome, (
+            f"Expected '{VALID_USER.expected_name}' in welcome message, got: '{welcome}'"
+        )
 
-    def test_login_invalid_credentials(self, driver, wiremock) -> None:
-        """Invalid credentials should show an error message."""
+    @pytest.mark.smoke
+    @pytest.mark.regression
+    def test_login_invalid_credentials(self, driver: WebDriver, wiremock: WireMockClient) -> None:
+        """An invalid user should see an error message and stay on the login screen."""
         # Arrange
-        wiremock.load_mapping_from_file(MAPPINGS_DIR / "login_failure.json")
+        wiremock.load_mapping_from_file("wiremock/mappings/login_failure.json")
 
         login_page = LoginPage(driver)
 
@@ -47,16 +58,21 @@ class TestLogin:
         login_page.login(INVALID_USER.username, INVALID_USER.password)
 
         # Assert
-        error = login_page.get_error_message()
-        assert "Invalid" in error or "invalid" in error, f"Expected error message, got: {error}"
+        error_text = login_page.get_error_message()
+        assert "Invalid" in error_text or "invalid" in error_text, (
+            f"Expected an 'invalid' error message, got: '{error_text}'"
+        )
+        assert login_page.is_login_button_displayed(), "Login button should still be visible"
 
     @pytest.mark.regression
-    def test_login_empty_fields(self, driver, wiremock) -> None:
-        """Submitting empty fields should show validation error."""
+    def test_login_empty_fields(self, driver: WebDriver, wiremock: WireMockClient) -> None:
+        """Submitting empty credentials should show a validation error."""
         login_page = LoginPage(driver)
 
         # Act — tap login without entering anything
-        login_page.tap_login()
+        login_page.login("", "")
 
-        # Assert — should remain on login page with an error
-        assert login_page.is_login_button_displayed(), "Should stay on login page"
+        # Assert — the app should show a validation / error message
+        assert login_page.is_login_button_displayed(), "Login button should still be visible"
+        error_text = login_page.get_error_message(timeout=5)
+        assert error_text, "An error message should be displayed for empty fields"

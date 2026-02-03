@@ -1,29 +1,24 @@
-"""User data models for test data."""
+"""User data model for test data."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class User:
-    """Test user credentials and expected data."""
+    """Immutable representation of a test user.
+
+    Attributes
+    ----------
+    username:
+        Login username / email.
+    password:
+        Login password.
+    expected_name:
+        The display name expected after a successful login.
+    """
 
     username: str
     password: str
-    display_name: str = ""
-
-
-# ── Pre-defined test users ────────────────────────────────────────
-
-VALID_USER = User(
-    username="testuser",
-    password="Test@1234",
-    display_name="Test User",
-)
-
-INVALID_USER = User(
-    username="invalid_user",
-    password="wrong_password",
-    display_name="",
-)
+    expected_name: str = ""

@@ -2,78 +2,104 @@
 
 from __future__ import annotations
 
+import logging
 import os
-from pathlib import Path
+from typing import Generator
 
 import pytest
+from _pytest.config.argparsing import Parser
+from _pytest.nodes import Item
 
+from src.utils.config_loader import ConfigLoader
 from src.utils.driver_factory import DriverFactory
 from src.utils.wiremock_client import WireMockClient
-from src.utils.config_loader import load_settings
+
+logger = logging.getLogger(__name__)
 
 
-# ── CLI Options ───────────────────────────────────────────────────
+# ── CLI options ───────────────────────────────────────────────────────────────
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
+def pytest_addoption(parser: Parser) -> None:
+    """Register custom command-line options."""
     parser.addoption(
         "--platform",
         action="store",
         default="android",
         choices=["android", "ios"],
-        help="Target platform: android or ios",
+        help="Target platform: android (default) or ios",
     )
+
+
+# ── Fixtures ──────────────────────────────────────────────────────────────────
 
 
 @pytest.fixture(scope="session")
 def platform(request: pytest.FixtureRequest) -> str:
-    """Return the target platform from CLI args."""
-    return request.config.getoption("--platform")
-
-
-# ── Driver fixture ────────────────────────────────────────────────
+    """Return the selected platform (``android`` or ``ios``)."""
+    return request.config.getoption("--platform")  # type: ignore[return-value]
 
 
 @pytest.fixture(scope="session")
-def driver(platform: str):
-    """Create an Appium driver for the session, quit when done."""
+def driver(platform: str) -> Generator:
+    """Create an Appium driver for the session, quit it afterwards."""
     _driver = DriverFactory.get_driver(platform)
+    logger.info("Appium driver created for platform=%s (session=%s)", platform, _driver.session_id)
     yield _driver
+    logger.info("Quitting Appium driver (session=%s)", _driver.session_id)
     _driver.quit()
 
 
-# ── WireMock fixture ──────────────────────────────────────────────
-
-
 @pytest.fixture(scope="session")
-def wiremock() -> WireMockClient:
-    """Provide a WireMock client for the test session."""
-    settings = load_settings()
-    base_url = settings["wiremock"]["base_url"]
+def wiremock() -> Generator[WireMockClient, None, None]:
+    """Provide a ``WireMockClient`` for the session.
+
+    Stubs are reset **after each test** via the ``autouse`` fixture below so
+    tests remain isolated.
+    """
+    settings = ConfigLoader.load_settings()
+    base_url: str = settings.get("wiremock", {}).get("base_url", "http://localhost:8080")
     client = WireMockClient(base_url)
-    return client
+    logger.info("WireMockClient connected → %s (healthy=%s)", base_url, client.is_healthy())
+    yield client
 
 
 @pytest.fixture(autouse=True)
-def reset_wiremock(wiremock: WireMockClient) -> None:
-    """Reset WireMock stubs before each test for isolation."""
-    wiremock.reset()
+def _reset_wiremock(wiremock: WireMockClient) -> Generator[None, None, None]:
+    """Auto-use fixture that resets WireMock stubs after every test."""
+    yield
+    try:
+        wiremock.reset()
+    except Exception:
+        logger.warning("Failed to reset WireMock after test", exc_info=True)
 
 
-# ── Screenshot on failure ─────────────────────────────────────────
+# ── Hooks ─────────────────────────────────────────────────────────────────────
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item: pytest.Item, call):
-    """Capture a screenshot when a test fails."""
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: Item) -> Generator:  # type: ignore[type-arg]
+    """Take a screenshot on test failure (if configured)."""
     outcome = yield
     report = outcome.get_result()
 
     if report.when == "call" and report.failed:
+        settings = ConfigLoader.load_settings()
+        if not settings.get("screenshots", {}).get("on_failure", True):
+            return
+
         driver = item.funcargs.get("driver")
-        if driver:
-            screenshot_dir = Path("reports/screenshots")
-            screenshot_dir.mkdir(parents=True, exist_ok=True)
-            name = item.nodeid.replace("::", "_").replace("/", "_")
-            path = screenshot_dir / f"{name}.png"
-            driver.save_screenshot(str(path))
+        if driver is None:
+            return
+
+        screenshot_dir = settings.get("screenshots", {}).get("output_dir", "reports/screenshots")
+        os.makedirs(screenshot_dir, exist_ok=True)
+
+        file_name = f"{item.nodeid.replace('::', '_').replace('/', '_')}.png"
+        file_path = os.path.join(screenshot_dir, file_name)
+
+        try:
+            driver.save_screenshot(file_path)
+            logger.info("Screenshot saved → %s", file_path)
+        except Exception:
+            logger.warning("Failed to take screenshot for %s", item.nodeid, exc_info=True)

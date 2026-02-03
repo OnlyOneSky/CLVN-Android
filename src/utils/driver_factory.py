@@ -1,54 +1,58 @@
-"""Appium driver factory — creates drivers for Android or iOS."""
+"""DriverFactory — create Appium driver instances from YAML configuration."""
 
 from __future__ import annotations
 
-from appium import webdriver
-from appium.options.android import UiAutomator2Options
-from appium.options.ios import XCUITestOptions
-from appium.webdriver.webdriver import WebDriver
+import logging
+from typing import Any
 
-from src.utils.config_loader import get_config
+from appium import webdriver as appium_webdriver
+from appium.options.common import AppiumOptions
+
+from src.utils.config_loader import ConfigLoader
+
+logger = logging.getLogger(__name__)
 
 
 class DriverFactory:
-    """Build an Appium WebDriver from YAML config."""
+    """Factory for creating configured Appium ``WebDriver`` instances.
+
+    Usage::
+
+        driver = DriverFactory.get_driver("android")
+    """
 
     @classmethod
-    def get_driver(cls, platform: str) -> WebDriver:
-        """Create and return an Appium driver for the given platform.
+    def get_driver(cls, platform: str) -> appium_webdriver.Remote:
+        """Build and return an Appium Remote driver for *platform*.
 
-        Args:
-            platform: 'android' or 'ios'
+        Parameters
+        ----------
+        platform:
+            ``"android"`` or ``"ios"``.
 
-        Returns:
-            Configured Appium WebDriver instance.
+        Returns
+        -------
+        appium.webdriver.Remote
+            A connected Appium driver ready for use.
         """
-        config = get_config(platform)
-        settings = config["settings"]
-        caps = config["capabilities"]
+        merged_config = ConfigLoader.load_merged_config(platform)
 
-        server_url = settings["appium"]["server_url"]
-        appium_opts = caps.get("appium:options", {})
+        server_url: str = merged_config.get("appium", {}).get("server_url", "http://127.0.0.1:4723")
+        capabilities: dict[str, Any] = merged_config.get("capabilities", {})
+        implicit_wait: int = merged_config.get("timeouts", {}).get("implicit_wait", 10)
 
-        if platform.lower() == "android":
-            options = UiAutomator2Options()
-        elif platform.lower() == "ios":
-            options = XCUITestOptions()
-        else:
-            raise ValueError(f"Unsupported platform: {platform}")
+        logger.info("Creating %s driver → %s", platform, server_url)
+        logger.debug("Capabilities: %s", capabilities)
 
-        # Set platform name
-        options.platform_name = caps.get("platformName", platform)
+        options = AppiumOptions()
+        options.load_capabilities(capabilities)
 
-        # Apply all appium:options from the YAML config
-        for key, value in appium_opts.items():
-            options.set_capability(f"appium:{key}", value)
+        driver = appium_webdriver.Remote(
+            command_executor=server_url,
+            options=options,
+        )
 
-        driver = webdriver.Remote(server_url, options=options)
+        driver.implicitly_wait(implicit_wait)
 
-        # Apply timeouts from settings
-        timeouts = settings.get("timeouts", {})
-        implicit = timeouts.get("implicit_wait", 10)
-        driver.implicitly_wait(implicit)
-
+        logger.info("Driver session created: %s", driver.session_id)
         return driver
