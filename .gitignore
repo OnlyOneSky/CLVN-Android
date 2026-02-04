@@ -24,7 +24,7 @@ htmlcov/
 coverage.xml
 
 # ── Allure ────────────────────────────────────────────────────────────────────
-reports/allure-results/
+allure-results/
 reports/allure-report/
 reports/screenshots/
 
