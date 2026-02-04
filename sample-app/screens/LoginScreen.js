@@ -50,7 +50,7 @@ export default function LoginScreen({ navigation }) {
         setError(data.message || 'Invalid username or password');
       }
     } catch (err) {
-      setError(`Network error: ${err.message}`);
+      setError('Network error — please try again');
     } finally {
       setLoading(false);
     }

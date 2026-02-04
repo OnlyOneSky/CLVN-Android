@@ -336,28 +336,61 @@ cd sample-app
 # Install dependencies
 npm install
 
-# Generate native Android project
-npx expo prebuild --platform android --no-install
+# Generate native Android project WITH cleartext HTTP plugins
+npx expo prebuild --clean
 
 # Build release APK (bundles JS — works without Metro dev server)
-cd android && ./gradlew assembleRelease
-
-# APK location:
-# android/app/build/outputs/apk/release/app-release.apk
+cd android
+./gradlew clean assembleRelease
 ```
+
+APK location: `android/app/build/outputs/apk/release/app-release.apk`
 
 > ⚠️ **Why release and not debug?** The debug APK requires a Metro dev server
 > running to serve the JavaScript bundle. The release APK bundles everything
 > so the app runs standalone — which is what we need for automated testing.
 
+> 🔑 **Critical: `npx expo prebuild --clean` is required!**
+> The `sample-app/android/` directory is gitignored because Expo generates it.
+> The prebuild step applies our custom plugins that:
+> - Enable cleartext HTTP traffic (needed for WireMock over `http://`)
+> - Generate `network_security_config.xml` (React Native's OkHttp requires
+>   this in release builds — the manifest attribute alone isn't sufficient)
+>
+> **If you skip this step, the app will get "Network request failed" errors
+> because Android blocks cleartext HTTP in release builds by default.**
+
+### Android Emulator Networking
+
+The sample app uses `10.0.2.2` to reach the host machine's `localhost` from
+inside the Android emulator. This is a built-in emulator alias — **no `adb
+reverse` needed.**
+
+| From | To reach host localhost | Method |
+|------|------------------------|--------|
+| Android emulator | `http://10.0.2.2:<port>` | Built-in alias (recommended) |
+| Physical device | `http://<host-ip>:<port>` | Use `adb reverse tcp:<port> tcp:<port>` |
+
 ### Install on emulator/device
 
-The test framework **auto-installs the APK** if it's not already on the device.
-You can also install manually:
+The test framework **auto-installs the APK** (and always reinstalls the latest
+version when an APK path is configured). You can also install manually:
 
 ```bash
-adb install sample-app/android/app/build/outputs/apk/release/app-release.apk
+adb install -r sample-app/android/app/build/outputs/apk/release/app-release.apk
 ```
+
+### Rebuilding after code changes
+
+When you change the sample app's source code (e.g., `screens/LoginScreen.js`):
+
+```bash
+cd sample-app/android
+./gradlew clean assembleRelease
+```
+
+The `clean` step is important — Gradle may cache the old JS bundle otherwise.
+After rebuilding, the test framework will automatically reinstall the new APK.
 
 ### App Screens
 
@@ -462,6 +495,31 @@ docker ps
 # Restart WireMock
 docker compose down && docker compose up -d
 ```
+
+### App shows "Network request failed" / "Network error"
+
+This usually means the Android release build is blocking cleartext HTTP. Fix:
+
+1. **Did you run `npx expo prebuild --clean`?** This is the #1 cause. The Expo
+   plugins that enable cleartext HTTP must be applied before building.
+
+2. **Did you `clean` before building?** Run `./gradlew clean assembleRelease` —
+   Gradle caches JS bundles aggressively.
+
+3. **Is WireMock reachable from the emulator?** Open Chrome in the emulator and
+   navigate to `http://10.0.2.2:8090/__admin/`. If this loads, networking is fine
+   and the issue is in the app build.
+
+4. **Full rebuild from scratch:**
+   ```bash
+   cd sample-app
+   npx expo prebuild --clean
+   cd android
+   ./gradlew clean assembleRelease
+   cd ../..
+   adb uninstall com.remita.sample
+   pytest tests/ -v
+   ```
 
 ### Tests fail with "No devices found"
 
