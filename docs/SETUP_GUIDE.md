@@ -1,6 +1,6 @@
-# RemiTA Setup Guide
+# CLVN-Android Setup Guide
 
-Complete setup guide for the RemiTA mobile test automation framework.
+Complete setup guide for the CLVN-Android mobile test automation framework.
 
 ## Table of Contents
 
@@ -46,8 +46,8 @@ export PATH="$JAVA_HOME/bin:$PATH"
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/OnlyOneSky/RemiTA.git
-cd RemiTA
+git clone https://github.com/OnlyOneSky/CLVN-Android.git
+cd CLVN-Android
 ```
 
 ### 2. Create virtual environment & install dependencies
@@ -230,20 +230,20 @@ colima start
 
 ### Option 1: Pull the pre-built image (recommended)
 
-Download `remita-wiremock.tar` from the [GitHub Release](https://github.com/OnlyOneSky/RemiTA/releases):
+Download `clvn-wiremock.tar` from the [GitHub Release](https://github.com/OnlyOneSky/CLVN-Android/releases):
 
 ```bash
 # Load the image
-docker load -i remita-wiremock.tar
+docker load -i clvn-wiremock.tar
 
 # Run it
-docker run -d --name remita-wiremock -p 8090:8080 remita-wiremock:latest
+docker run -d --name clvn-wiremock -p 8090:8080 clvn-wiremock:latest
 ```
 
 ### Option 2: Build from source
 
 ```bash
-cd RemiTA
+cd CLVN-Android
 docker compose up -d
 ```
 
@@ -265,10 +265,10 @@ You should see the login stubs (success + failure) in the response.
 
 ```bash
 # Stop
-docker stop remita-wiremock
+docker stop clvn-wiremock
 
 # Start again
-docker start remita-wiremock
+docker start clvn-wiremock
 
 # Or with docker-compose
 docker compose down
@@ -317,7 +317,7 @@ When you update stubs and want to share the new image:
 docker compose build
 
 # Export
-docker save remita-wiremock:latest -o remita-wiremock.tar
+docker save clvn-wiremock:latest -o clvn-wiremock.tar
 
 # Share the .tar or create a new GitHub Release
 ```
@@ -517,7 +517,7 @@ This usually means the Android release build is blocking cleartext HTTP. Fix:
    cd android
    ./gradlew clean assembleRelease
    cd ../..
-   adb uninstall com.remita.sample
+   adb uninstall com.clvn.sample
    pytest tests/ -v
    ```
 

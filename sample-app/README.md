@@ -1,6 +1,6 @@
-# RemiTA Sample App
+# CLVN-Android Sample App
 
-A minimal React Native (Expo) app used as the test target for the RemiTA test automation framework.
+A minimal React Native (Expo) app used as the test target for the CLVN-Android test automation framework.
 
 ## Screens
 

@@ -66,7 +66,7 @@ class AppInstaller:
                 ["adb", "-s", serial, "shell", "pm", "list", "packages", package],
                 capture_output=True, text=True, timeout=15,
             )
-            # pm list packages returns lines like "package:com.remita.sample"
+            # pm list packages returns lines like "package:com.clvn.sample"
             installed = f"package:{package}" in result.stdout
             logger.info(
                 "App %s on %s: %s",

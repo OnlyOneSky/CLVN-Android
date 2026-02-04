@@ -1,6 +1,6 @@
-# RemiTA Test Flow — How It All Works
+# CLVN-Android Test Flow — How It All Works
 
-A detailed guide to how RemiTA discovers devices, sets up the environment,
+A detailed guide to how CLVN-Android discovers devices, sets up the environment,
 runs tests, and generates reports.
 
 ---
@@ -56,7 +56,7 @@ runs tests, and generates reports.
 ## Component Map
 
 ```
-RemiTA/
+CLVN-Android/
 ├── tests/
 │   ├── conftest.py          ← Fixtures, hooks, device discovery
 │   └── test_login.py        ← Test cases (one file per feature)
@@ -173,7 +173,7 @@ pytest tests/ -v
 
 ## Fixture Lifecycle
 
-Fixtures are the backbone of RemiTA's test setup. Here's the dependency
+Fixtures are the backbone of CLVN-Android's test setup. Here's the dependency
 chain and scope:
 
 ```
@@ -293,7 +293,7 @@ Test Runner         Appium Server         Emulator (App)
 
 ## Page Object Model
 
-RemiTA uses the **Page Object Model (POM)** design pattern. Each screen in the
+CLVN-Android uses the **Page Object Model (POM)** design pattern. Each screen in the
 app is represented by a Python class that encapsulates:
 
 - **Locators** — how to find UI elements
@@ -337,7 +337,7 @@ LoginPage(BasePage)                HomePage(BasePage)
 
 ## Multi-Device Execution
 
-RemiTA automatically discovers all connected devices and runs the full
+CLVN-Android automatically discovers all connected devices and runs the full
 test suite on each one sequentially:
 
 ```
@@ -383,7 +383,7 @@ pytest --platform all        # Everything (default)
 
 ## Configuration Loading
 
-RemiTA uses a layered config system:
+CLVN-Android uses a layered config system:
 
 ```
 config/settings.yaml     ← Global: Appium URL, WireMock URL, timeouts
@@ -415,7 +415,7 @@ capabilities:
   platformName: "Android"
   "appium:automationName": "UiAutomator2"
   "appium:app": "sample-app/android/.../app-release.apk"
-  "appium:appPackage": "com.remita.sample"
+  "appium:appPackage": "com.clvn.sample"
   "appium:appActivity": ".MainActivity"
 ```
 

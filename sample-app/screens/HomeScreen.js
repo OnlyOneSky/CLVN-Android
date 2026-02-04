@@ -26,7 +26,7 @@ export default function HomeScreen({ route, navigation }) {
       </Text>
 
       <Text style={styles.body}>
-        You are now logged in to the RemiTA sample app.
+        You are now logged in to the CLVN-Android sample app.
       </Text>
 
       {/* Menu button */}

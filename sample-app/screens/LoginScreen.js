@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>RemiTA</Text>
+      <Text style={styles.title}>CLVN-Android</Text>
       <Text style={styles.subtitle}>Sample App</Text>
 
       <TextInput

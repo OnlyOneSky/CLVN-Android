@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RemiTA Sample",
-    "slug": "remita-sample",
+    "name": "CLVN-Android Sample",
+    "slug": "clvn-android-sample",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.remita.sample"
+      "bundleIdentifier": "com.clvn.sample"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.remita.sample"
+      "package": "com.clvn.sample"
     },
     "web": {
       "favicon": "./assets/favicon.png"

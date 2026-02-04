@@ -6,7 +6,7 @@ capabilities:
   "appium:deviceName": "emulator-5554"
   "appium:platformVersion": "14"
   "appium:app": "sample-app/android/app/build/outputs/apk/release/app-release.apk"
-  "appium:appPackage": "com.remita.sample"
+  "appium:appPackage": "com.clvn.sample"
   "appium:appActivity": ".MainActivity"
   "appium:noReset": false
   "appium:fullReset": false

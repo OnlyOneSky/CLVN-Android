@@ -1,6 +1,6 @@
-# AGENTS.md — RemiTA Project Conventions
+# AGENTS.md — CLVN-Android Project Conventions
 
-AI coding guide for the RemiTA mobile test automation framework.
+AI coding guide for the CLVN-Android mobile test automation framework.
 
 ## Tech Stack
 

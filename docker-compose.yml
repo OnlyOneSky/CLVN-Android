@@ -3,8 +3,8 @@ services:
     build:
       context: ./wiremock
       dockerfile: Dockerfile
-    image: remita-wiremock:latest
-    container_name: remita-wiremock
+    image: clvn-wiremock:latest
+    container_name: clvn-wiremock
     ports:
       - "8090:8080"
       - "8443:8443"

@@ -1,4 +1,4 @@
-# RemiTA 🤖
+# CLVN-Android 🤖
 
 Mobile test automation framework built with Python, Appium, and pytest.
 
@@ -26,7 +26,7 @@ Mobile test automation framework built with Python, Appium, and pytest.
 ## Project Structure
 
 ```
-RemiTA/
+CLVN-Android/
 ├── config/                     # Platform & settings YAML
 │   ├── settings.yaml           # Shared settings (URLs, timeouts)
 │   ├── android.yaml            # Android capabilities
@@ -58,8 +58,8 @@ RemiTA/
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/OnlyOneSky/RemiTA.git
-cd RemiTA
+git clone https://github.com/OnlyOneSky/CLVN-Android.git
+cd CLVN-Android
 ```
 
 ### 2. Create virtual environment & install dependencies

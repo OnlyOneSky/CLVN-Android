@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "remita"
+name = "clvn-android"
 version = "0.1.0"
 description = "Mobile test automation framework — Python + Appium + pytest with Page Object Model and WireMock"
 readme = "README.md"
