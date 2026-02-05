@@ -1,0 +1,16 @@
+{
+  "MWHEADER" : {
+    "RETURNCODE" : "0000",
+    "MESSAGE" : {
+      "TITLE" : "",
+      "CONTENT" : ""
+    },
+    "TXNSEQ" : "b00fb3e3-7984-4b8a-8439-2aa82a64ffcf",
+    "MSGID" : "CA01A-01-005",
+    "RETURNDESC" : "",
+    "TRACEID" : "b108efbc74d543de"
+  },
+  "TRANRS" : {
+    "status" : 0
+  }
+}

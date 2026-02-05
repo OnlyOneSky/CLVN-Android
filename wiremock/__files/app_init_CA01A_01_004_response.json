@@ -1,0 +1,14 @@
+{
+  "MWHEADER": {
+    "MSGID": "string",
+    "SOURCECHANNEL": "string",
+    "TXNSEQ": "string",
+    "RETURNCODE": "0000",
+    "RETURNDESC": "string",
+    "TRACEID": "string"
+  },
+  "TRANRS": {
+    "publicKey": "aaaaaa",
+    "isOpenEncrypt": false
+  }
+}

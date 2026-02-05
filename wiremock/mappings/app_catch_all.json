@@ -1,0 +1,14 @@
+{
+  "priority": 99,
+  "request": {
+    "method": "ANY",
+    "urlPattern": ".*"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "app_generic_success_response.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

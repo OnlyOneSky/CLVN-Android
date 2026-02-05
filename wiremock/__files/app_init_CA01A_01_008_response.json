@@ -1,0 +1,20 @@
+{
+  "MWHEADER": {
+    "MSGID": "CA01A-01-008",
+    "TXNSEQ": "a05f995a-9a84-429a-9299-7557f7767391",
+    "RETURNCODE": "0000",
+    "RETURNDESC": "string",
+    "TRACEID": "3aee1b18aaf043a4",
+    "MESSAGE" : {
+      "TITLE" : "",
+      "CONTENT" : ""
+    }
+  },
+  "TRANRS": {
+    "siteKey": "123",
+    "apiKey": "123",
+    "score": 0.3,
+    "projectId": "123",
+    "flag": false
+  }
+}
