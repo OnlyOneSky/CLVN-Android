@@ -46,6 +46,11 @@ class BasePage:
         element = wait.until(EC.element_to_be_clickable(locator))
         element.click()
 
+    def tap(self, locator: tuple[str, str], timeout: int = DEFAULT_TIMEOUT) -> None:
+        """Find element and tap it immediately (faster than click)."""
+        element = self.find_element(locator, timeout)
+        element.click()
+
     def type_text(self, locator: tuple[str, str], text: str, timeout: int = DEFAULT_TIMEOUT) -> None:
         """Clear the field and type *text* into it."""
         element = self.find_element(locator, timeout)

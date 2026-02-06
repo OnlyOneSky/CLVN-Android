@@ -72,7 +72,7 @@ class WelcomePage(BasePage):
         """Tap 'Got It' to dismiss the current announcement dialog."""
         self.click(self.DIALOG_GOT_IT, timeout=timeout)
 
-    def dismiss_startup_dialogs(self, max_dialogs: int = 5, timeout: int = 3) -> int:
+    def dismiss_startup_dialogs(self, max_dialogs: int = 5, timeout: int = 1) -> int:
         """Dismiss all startup announcement dialogs.
 
         Returns the number of dialogs dismissed. Keeps tapping 'Got It'
@@ -92,13 +92,13 @@ class WelcomePage(BasePage):
 
     # ── Welcome screen actions ────────────────────────────────────────────
 
-    def is_page_displayed(self, timeout: int = 15) -> bool:
+    def is_page_displayed(self, timeout: int = 5) -> bool:
         """Return True if the welcome/visitor screen is visible."""
         return self.is_displayed(self.GET_CREDIT_BUTTON, timeout=timeout)
 
-    def tap_get_credit(self, timeout: int = 10) -> None:
+    def tap_get_credit(self, timeout: int = 5) -> None:
         """Tap 'Get Credit' to start the registration/credit application flow."""
-        self.click(self.GET_CREDIT_BUTTON, timeout=timeout)
+        self.tap(self.GET_CREDIT_BUTTON, timeout=timeout)
 
     def tap_login(self, timeout: int = 10) -> None:
         """Tap 'Log In' to navigate to the login screen."""
@@ -118,9 +118,9 @@ class WelcomePage(BasePage):
         """Return True if the intro popup (Become a Member) is visible."""
         return self.is_displayed(self.INTRO_TITLE, timeout=timeout)
 
-    def tap_become_member(self, timeout: int = 10) -> None:
+    def tap_become_member(self, timeout: int = 5) -> None:
         """Tap 'Become a Member' on the intro popup."""
-        self.click(self.BECOME_MEMBER_BUTTON, timeout=timeout)
+        self.tap(self.BECOME_MEMBER_BUTTON, timeout=timeout)
 
     # ── Terms & Conditions popup actions ──────────────────────────────────
 
@@ -128,9 +128,9 @@ class WelcomePage(BasePage):
         """Return True if the Terms & Conditions popup is visible."""
         return self.is_displayed(self.TERMS_DIALOG_TITLE, timeout=timeout)
 
-    def tap_agree_terms(self, timeout: int = 10) -> None:
+    def tap_agree_terms(self, timeout: int = 5) -> None:
         """Tap 'Agree' on the Terms & Conditions popup."""
-        self.click(self.AGREE_TERMS_BUTTON, timeout=timeout)
+        self.tap(self.AGREE_TERMS_BUTTON, timeout=timeout)
 
     # ── Full registration navigation ──────────────────────────────────────
 
