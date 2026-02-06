@@ -37,8 +37,13 @@ class BasePage:
 
     def find_element(self, locator: tuple[str, str], timeout: int = DEFAULT_TIMEOUT) -> WebElement:
         """Wait for an element to be present and return it."""
+        import time as _time
+        _start = _time.time()
+        print(f"      [find_element] Looking for {locator[1][-30:]} with timeout={timeout}s...")
         wait = WebDriverWait(self.driver, timeout)
-        return wait.until(EC.presence_of_element_located(locator))
+        result = wait.until(EC.presence_of_element_located(locator))
+        print(f"      [find_element] Found in {_time.time()-_start:.1f}s")
+        return result
 
     def click(self, locator: tuple[str, str], timeout: int = DEFAULT_TIMEOUT) -> None:
         """Wait for an element to be clickable, then tap it."""
@@ -64,11 +69,16 @@ class BasePage:
 
     def is_displayed(self, locator: tuple[str, str], timeout: int = DEFAULT_TIMEOUT) -> bool:
         """Return ``True`` if the element is visible within *timeout*."""
+        import time as _time
+        _start = _time.time()
+        print(f"      [is_displayed] Looking for {locator[1][-30:]} with timeout={timeout}s...")
         try:
             wait = WebDriverWait(self.driver, timeout)
             wait.until(EC.visibility_of_element_located(locator))
+            print(f"      [is_displayed] Found in {_time.time()-_start:.1f}s")
             return True
         except (TimeoutException, NoSuchElementException):
+            print(f"      [is_displayed] NOT found after {_time.time()-_start:.1f}s")
             return False
 
     def wait_for_element(self, locator: tuple[str, str], timeout: int = DEFAULT_TIMEOUT) -> WebElement:
