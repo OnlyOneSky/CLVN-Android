@@ -99,7 +99,8 @@ class DriverFactory:
             "server_url", "http://127.0.0.1:4723"
         )
         capabilities: dict[str, Any] = config.get("capabilities", {})
-        implicit_wait: int = config.get("timeouts", {}).get("implicit_wait", 10)
+        implicit_wait: int = config.get("timeouts", {}).get("implicit_wait", 0)
+        logger.info("Setting implicit_wait to %d seconds", implicit_wait)
 
         # Remove appium:app — installation is handled by AppInstaller
         # Keeping it would cause Appium to reinstall the APK on every session
