@@ -36,8 +36,8 @@ class RegisterOtpPage(BasePage):
 
         Tries multiple approaches:
         1. Find individual EditText children and enter one digit each
-        2. Click the component and type the full OTP
-        3. Use Android keycode events
+        2. Use send_keys on the single EditText field
+        3. Fall back to Android keycode events
         """
         import time
         from appium.webdriver.extensions.android.nativekey import AndroidKey
@@ -48,14 +48,22 @@ class RegisterOtpPage(BasePage):
         digit_fields = component.find_elements(AppiumBy.CLASS_NAME, "android.widget.EditText")
         
         if digit_fields and len(digit_fields) >= len(otp):
-            # Method 1: Individual fields
+            # Method 1: Individual fields (6 separate EditTexts)
             print(f"    >>> OTP: Using individual fields method ({len(digit_fields)} fields)")
             for i, digit in enumerate(otp):
                 digit_fields[i].click()
                 digit_fields[i].send_keys(digit)
-                time.sleep(0.1)  # Small delay between digits
+                time.sleep(0.1)
+        elif digit_fields and len(digit_fields) == 1:
+            # Method 2: Single EditText - use send_keys directly
+            print(f"    >>> OTP: Using single field send_keys method")
+            digit_fields[0].click()
+            time.sleep(0.3)
+            digit_fields[0].clear()
+            digit_fields[0].send_keys(otp)
+            time.sleep(0.3)
         else:
-            # Method 2: Click and type directly using keyboard
+            # Method 3: Fall back to keycodes on the component
             print(f"    >>> OTP: Using keycode method (found {len(digit_fields) if digit_fields else 0} fields)")
             component.click()
             time.sleep(0.5)
@@ -64,7 +72,7 @@ class RegisterOtpPage(BasePage):
             for digit in otp:
                 key_code = getattr(AndroidKey, f"DIGIT_{digit}")
                 self.driver.press_keycode(key_code)
-                time.sleep(0.15)  # Slightly longer delay
+                time.sleep(0.15)
         
         # Wait for any auto-submit or UI update after OTP entry
         print("    >>> OTP: Entry complete, waiting 2s for app response...")
