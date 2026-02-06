@@ -145,13 +145,19 @@ class WelcomePage(BasePage):
         import time
 
         # Step 1: Tap "Get Credit" on welcome screen
+        print("    >>> nav: Tapping Get Credit...")
         self.tap_get_credit(timeout=timeout)
-        time.sleep(2)  # Wait for intro popup to appear
+        print("    >>> nav: Get Credit tapped, waiting 2s...")
+        time.sleep(2)
 
         # Step 2: Tap "Become a Member" on intro popup
+        print("    >>> nav: Tapping Become a Member...")
         self.tap_become_member(timeout=timeout)
-        time.sleep(2)  # Wait for T&C popup to appear
+        print("    >>> nav: Become a Member tapped, waiting 2s...")
+        time.sleep(2)
 
         # Step 3: Tap "I Agree" on T&C popup
+        print("    >>> nav: Tapping Agree Terms...")
         self.tap_agree_terms(timeout=timeout)
-        time.sleep(1)  # Wait for verify phone screen to load
+        print("    >>> nav: Agree Terms tapped, done!")
+        time.sleep(1)
