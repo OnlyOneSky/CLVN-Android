@@ -49,14 +49,12 @@ class RegisterOtpPage(BasePage):
         
         if digit_fields and len(digit_fields) >= len(otp):
             # Method 1: Individual fields (6 separate EditTexts)
-            print(f"    >>> OTP: Using individual fields method ({len(digit_fields)} fields)")
             for i, digit in enumerate(otp):
                 digit_fields[i].click()
                 digit_fields[i].send_keys(digit)
                 time.sleep(0.1)
         elif digit_fields and len(digit_fields) == 1:
             # Method 2: Single EditText - use send_keys directly
-            print(f"    >>> OTP: Using single field send_keys method")
             digit_fields[0].click()
             time.sleep(0.3)
             digit_fields[0].clear()
@@ -64,27 +62,19 @@ class RegisterOtpPage(BasePage):
             time.sleep(0.3)
         else:
             # Method 3: Fall back to keycodes on the component
-            print(f"    >>> OTP: Using keycode method (found {len(digit_fields) if digit_fields else 0} fields)")
             component.click()
             time.sleep(0.5)
-            
-            # Type each digit with keypress
             for digit in otp:
                 key_code = getattr(AndroidKey, f"DIGIT_{digit}")
                 self.driver.press_keycode(key_code)
                 time.sleep(0.15)
         
-        # Wait for any auto-submit or UI update after OTP entry
-        print("    >>> OTP: Entry complete, waiting 2s for app response...")
-        time.sleep(2)
+        # Brief wait for UI update
+        time.sleep(0.5)
 
     def tap_verify(self) -> None:
         """Tap the primary CTA (Verify) button."""
-        print("    >>> OTP: Tapping Verify button...")
         self.click(self.CTA_BUTTON)
-        print("    >>> OTP: Verify tapped, waiting 2s for API response...")
-        import time
-        time.sleep(2)
 
     def tap_resend(self) -> None:
         """Tap the resend / secondary CTA button (same element, text toggles)."""

@@ -51,35 +51,21 @@ class TestRegister:
     )
     def test_successful_registration(self, driver: WebDriver, wiremock: WireMockClient) -> None:
         """A new user should be able to register and reach the success screen."""
-        import time as _time
-        _start = _time.time()
-        
-        def _log(msg):
-            elapsed = _time.time() - _start
-            print(f">>> [{elapsed:.1f}s] {msg}")
-        
-        _log("Test starting, loading WireMock stubs...")
         with allure.step("Set up WireMock stubs for the full registration flow"):
             wiremock.load_mapping_from_file(_STUB_SEND_PHONE_OTP)
             wiremock.load_mapping_from_file(_STUB_VERIFY_PHONE_OTP)
             wiremock.load_mapping_from_file(_STUB_SEND_EMAIL_OTP)
             wiremock.load_mapping_from_file(_STUB_VERIFY_EMAIL_OTP)
             wiremock.load_mapping_from_file(_STUB_CREATE_PASSWORD)
-        _log("WireMock stubs loaded")
 
         welcome_page = WelcomePage(driver)
 
         with allure.step("Dismiss startup announcement dialogs"):
-            _log("Checking for dialogs...")
-            dismissed = welcome_page.dismiss_startup_dialogs()
-            _log(f"Dismissed {dismissed} dialogs")
+            welcome_page.dismiss_startup_dialogs()
 
         with allure.step("Navigate through welcome → intro → T&C to registration"):
-            _log("Checking if welcome page is displayed...")
             assert welcome_page.is_page_displayed(), "Welcome screen did not appear"
-            _log("Welcome page displayed, calling navigate_to_registration...")
             welcome_page.navigate_to_registration()
-            _log("Navigation complete")
 
         verify_phone_page = RegisterVerifyPhonePage(driver)
 

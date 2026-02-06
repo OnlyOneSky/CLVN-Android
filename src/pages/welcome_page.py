@@ -81,15 +81,12 @@ class WelcomePage(BasePage):
         import time
 
         dismissed = 0
-        for i in range(max_dialogs):
-            print(f"      >>> dialog check {i+1}/{max_dialogs}...")
+        for _ in range(max_dialogs):
             if self.is_dialog_displayed(timeout=timeout):
-                print(f"      >>> dialog found, dismissing...")
                 self.dismiss_dialog()
                 dismissed += 1
                 time.sleep(0.3)
             else:
-                print(f"      >>> no dialog, breaking")
                 break
         return dismissed
 
@@ -145,23 +142,15 @@ class WelcomePage(BasePage):
         Both the intro popup and T&C popup use btn_primary as the action button,
         so we tap it twice after the initial Get Credit tap.
         """
-        import time as _time
-        _start = _time.time()
-        def _t(): return f"[{_time.time()-_start:.1f}s]"
+        import time
 
         # Step 1: Tap "Get Credit" on welcome screen
-        print(f"    >>> nav {_t()}: Tapping Get Credit...")
         self.tap_get_credit(timeout=timeout)
-        print(f"    >>> nav {_t()}: Get Credit tapped, waiting 1s...")
-        _time.sleep(1)
+        time.sleep(1)
 
         # Step 2: Tap "Become a Member" on intro popup
-        print(f"    >>> nav {_t()}: Tapping Become a Member...")
         self.tap_become_member(timeout=timeout)
-        print(f"    >>> nav {_t()}: Become a Member tapped, waiting 1s...")
-        _time.sleep(1)
+        time.sleep(1)
 
         # Step 3: Tap "I Agree" on T&C popup
-        print(f"    >>> nav {_t()}: Tapping Agree Terms...")
         self.tap_agree_terms(timeout=timeout)
-        print(f"    >>> nav {_t()}: Agree Terms tapped, done!")
