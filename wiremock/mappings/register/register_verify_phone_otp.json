@@ -6,7 +6,7 @@
   },
   "response": {
     "status": 200,
-    "bodyFileName": "register_verify_phone_otp_response.json",
+    "bodyFileName": "register/register_verify_phone_otp_response.json",
     "headers": {
       "Content-Type": "application/json"
     }

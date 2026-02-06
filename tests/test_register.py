@@ -28,11 +28,11 @@ PASSWORD = "Test@1234"
 
 # ── WireMock mapping paths ────────────────────────────────────────────────────
 
-_STUB_SEND_PHONE_OTP = "wiremock/mappings/register_send_phone_otp.json"
-_STUB_VERIFY_PHONE_OTP = "wiremock/mappings/register_verify_phone_otp.json"
-_STUB_SEND_EMAIL_OTP = "wiremock/mappings/register_send_email_otp.json"
-_STUB_VERIFY_EMAIL_OTP = "wiremock/mappings/register_verify_email_otp.json"
-_STUB_CREATE_PASSWORD = "wiremock/mappings/register_create_password.json"
+_STUB_SEND_PHONE_OTP = "wiremock/mappings/register/register_send_phone_otp.json"
+_STUB_VERIFY_PHONE_OTP = "wiremock/mappings/register/register_verify_phone_otp.json"
+_STUB_SEND_EMAIL_OTP = "wiremock/mappings/register/register_send_email_otp.json"
+_STUB_VERIFY_EMAIL_OTP = "wiremock/mappings/register/register_verify_email_otp.json"
+_STUB_CREATE_PASSWORD = "wiremock/mappings/register/register_create_password.json"
 
 
 @allure.epic("Registration")

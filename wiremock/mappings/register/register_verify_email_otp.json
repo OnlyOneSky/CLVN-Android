@@ -2,11 +2,11 @@
   "priority": 1,
   "request": {
     "method": "POST",
-    "urlPattern": ".*/CA02A-02-006.*"
+    "urlPattern": ".*/CA02A-03-007.*"
   },
   "response": {
     "status": 200,
-    "bodyFileName": "register_send_email_otp_response.json",
+    "bodyFileName": "register/register_verify_email_otp_response.json",
     "headers": {
       "Content-Type": "application/json"
     }

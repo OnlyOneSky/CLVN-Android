@@ -2,11 +2,11 @@
   "priority": 1,
   "request": {
     "method": "POST",
-    "urlPattern": ".*/CA02A-03-004.*"
+    "urlPattern": ".*/CA02A-02-006.*"
   },
   "response": {
     "status": 200,
-    "bodyFileName": "register_send_phone_otp_response.json",
+    "bodyFileName": "register/register_send_email_otp_response.json",
     "headers": {
       "Content-Type": "application/json"
     }
