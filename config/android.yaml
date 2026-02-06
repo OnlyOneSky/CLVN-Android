@@ -14,3 +14,6 @@ capabilities:
   "appium:newCommandTimeout": 300
   "appium:uiautomator2ServerInstallTimeout": 60000
   "appium:adbExecTimeout": 30000
+  # Speed up element finding by reducing UiAutomator2 idle/selector timeouts
+  "appium:settings[waitForIdleTimeout]": 0
+  "appium:settings[waitForSelectorTimeout]": 0
